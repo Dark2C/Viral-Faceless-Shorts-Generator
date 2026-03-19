@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update system packages and install the necessary dependencies
 RUN apt-get update && apt-get install -y \
     espeak espeak-data libespeak1 libespeak-dev \
+    libxml2-dev libxslt1-dev \
     build-essential ffmpeg python3-dev python3-pip \
     python3-setuptools python3-wheel python3-distutils \
     && rm -rf /var/lib/apt/lists/*  # Clean up apt cache to reduce image size
