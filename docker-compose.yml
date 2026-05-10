@@ -1,27 +1,56 @@
 services:
   trendscraper:
+    restart: unless-stopped
     build:
       context: ./trendscraper
     environment:
       - GEMINI_API_KEY
+      - OPENROUTER_API_KEY
+      - OPENROUTER_MODEL
       - LOCALE
       - COQUI_SPEAKER_ID
+      - COQUI_LANGUAGE_ID
+      - TTS_UPSTREAM_TIMEOUT_MS
+      - PIPER_BASE_URL
+      - PIPER_SERVER_URL
+      - PIPER_VOICE
+      - PIPER_LANGUAGE
+      - DEFAULT_VIDEO_ORIENTATION
+      - DEFAULT_VIDEO_WIDTH
+      - DEFAULT_VIDEO_HEIGHT
+      - APP_DB_PATH
+      - INPUT_VIDEOS_DIR
+      - OUTPUT_VIDEOS_DIR
     volumes:
       - ./videos:/mnt/videos
-  coqui:
+      - ./data:/app/data
+  piper:
+    restart: unless-stopped
     build:
-      context: ./coqui
+      context: ./piper
+    environment:
+      - PIPER_VOICE
+      - PIPER_LANGUAGE
+      - PIPER_MODEL_URL
+      - PIPER_CONFIG_URL
+    volumes:
+      - piper_models:/models
   speechalign:
+    restart: unless-stopped
     build:
       context: ./speechalign
   nginx:
+    restart: unless-stopped
     image: nginx:latest
     ports:
-      - "80:80"
+      - "${WEB_PORT:-9988}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/html:/usr/share/nginx/html:ro
     depends_on:
       - trendscraper
-      - coqui
+      - piper
       - speechalign
+
+volumes:
+  piper_models:

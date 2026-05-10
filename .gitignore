@@ -1,2 +1,4 @@
 .env
+*.mp4
 videos/*.mp4
+data/*.db
