@@ -1,493 +1,504 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Viral Faceless Shorts Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-    }
-
-    .top-bar {
-      padding: 1rem;
-      background: #f8f9fa;
-      border-bottom: 1px solid #dee2e6;
-    }
-
-    #card-grid {
-      display: flex;
-      flex: 1;
-      flex-wrap: wrap;
-      gap: 1rem;
-      padding: 1rem;
-      justify-content: center;
-    }
-
-    #card-grid:empty::before {
-      content: "No videos found.\ATry running a workflow to generate content.";
-      white-space: pre-line;
-      display: block;
-      text-align: center;
-      color: #6c757d;
-      font-size: 1.2rem;
-      margin-top: 3rem;
-    }
-
-    .card-tile {
-      width: 300px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 1rem;
-      background-color: #fff;
-      position: relative;
-    }
-
-    .card-tile h6 {
-      font-weight: bold;
-      cursor: pointer;
-      height: 3hl;
-      overflow: hidden;
-    }
-
-    .card-tile p {
-      font-size: 0.9rem;
-      cursor: pointer;
-      height: 5hl;
-      overflow: hidden;
-    }
-
-    .progress {
-      height: 8px;
-      margin-top: 10px;
-    }
-
-    .toast-container {
-      position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      z-index: 9999;
-    }
-  </style>
+	<meta charset="UTF-8" />
+	<title>Viral Faceless Shorts Generator</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+	<link
+		href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+		rel="stylesheet" />
+	<link href="assets/style.css" rel="stylesheet" />
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body>
+	<div class="page-wrap">
+		<header class="hero">
+			<h1>Viral Faceless Shorts Generator</h1>
+			<p>Simple flow: pick a voice, write your topic, then tap generate.</p>
+			<div class="quick-hints">
+				<span class="hint-pill">Mobile-first</span>
+				<span class="hint-pill">Big buttons</span>
+				<span class="hint-pill">4-step workflow</span>
+			</div>
+		</header>
 
-  <div class="top-bar px-3 py-2 border-bottom bg-light d-flex flex-wrap justify-content-between align-items-center">
-    <h5 class="mb-2 mb-md-0 fw-semibold">Viral Faceless Shorts Generator</h5>
-    <div class="d-flex gap-2">
-      <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#customTopicModal">
-        Custom Topic Workflow
-      </button>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#workflowModal">
-        Trend-Based Workflow
-      </button>
-    </div>
-  </div>
+		<section class="panel">
+			<span class="step-label">Step 1</span>
+			<h2>Pick Voice</h2>
+			<p class="helper-text mt-0">
+				Choose language and voice once, then create videos quickly.
+			</p>
+			<div class="quick-tools">
+				<div>
+					<label for="languageSelect" class="form-label">Language</label>
+					<select id="languageSelect" class="form-select" disabled>
+						<option>Lang...</option>
+					</select>
+				</div>
+				<div>
+					<label for="qualitySelect" class="form-label">Quality</label>
+					<select id="qualitySelect" class="form-select" disabled>
+						<option>Quality...</option>
+					</select>
+				</div>
+				<div>
+					<label for="voiceSelect" class="form-label">Voice</label>
+					<select id="voiceSelect" class="form-select" disabled>
+						<option>Loading voices...</option>
+					</select>
+				</div>
+			</div>
+			<div class="quick-tools mt-2">
+				<button class="btn btn-outline-secondary" id="previewVoiceBtn" disabled>
+					Preview Voice
+				</button>
+				<button class="btn btn-outline-dark" id="openSettingsBtn" data-bs-toggle="modal"
+					data-bs-target="#settingsModal">
+					Settings
+				</button>
+			</div>
+		</section>
 
-  <!-- Settings Modal -->
-  <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="workflowModalLabel">Workflow Settings</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="geo" class="form-label">Country</label>
-              <select id="geo" class="form-control">
-                <option value="" disabled selected>Select country</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="hours" class="form-label">Time Range</label>
-              <select id="hours" class="form-control">
-                <option value="" selected disabled>Select time range</option>
-                <option value="4">Last 4 hours</option>
-                <option value="24">Last 24 hours</option>
-                <option value="48">Last 48 hours</option>
-                <option value="168">Last 7 days</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="category" class="form-label">Category</label>
-              <select id="category" class="form-control">
-                <option value="">All categories</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="status" class="form-label">Trend Status</label>
-              <select id="status" class="form-control">
-                <option value="">All trends</option>
-                <option value="active">Only active trends</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="sort" class="form-label">Sort By</label>
-              <select id="sort" class="form-control">
-                <option value="">Sort by relevance</option>
-                <option value="title">Sort by title</option>
-                <option value="search-volume">Sort by search volume</option>
-                <option value="recency">Sort by recency</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="maxVideos" class="form-label">Max Videos</label>
-              <input type="number" id="maxVideos" class="form-control" min="1" placeholder="Maximum number of videos"
-                title="Set the maximum number of videos to process, or leave empty for no limit" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button class="btn btn-primary" onclick="executeWorkflow()" data-bs-dismiss="modal">Execute Workflow</button>
-        </div>
-      </div>
-    </div>
-  </div>
+		<section class="panel">
+			<span class="step-label">Step 2</span>
+			<h2>Write Script</h2>
+			<div class="form-grid">
+				<div>
+					<label for="scriptSource" class="form-label">How do you want to write?</label>
+					<select id="scriptSource" class="form-select">
+						<option value="gemini">AI writes from a topic</option>
+						<option value="trends">AI writes from Google Trends</option>
+						<option value="direct">I paste my own script</option>
+					</select>
 
-  <!-- Custom Topic Modal -->
-  <div class="modal fade" id="customTopicModal" tabindex="-1" aria-labelledby="customTopicModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="customTopicModalLabel">Custom Topic Workflow</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="customTopic" class="form-label">Topic Keyword</label>
-            <input type="text" class="form-control" id="customTopic" placeholder="Enter a topic keyword" required>
-          </div>
-          <div class="mb-3">
-            <label for="customDescription" class="form-label">Expected Video Description</label>
-            <textarea class="form-control" id="customDescription" rows="3"
-              placeholder="Describe what you expect to see in the final video" required></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button class="btn btn-primary" onclick="generateVideo()" data-bs-dismiss="modal">Generate Video</button>
-        </div>
-      </div>
-    </div>
-  </div>
+					<div id="scriptPromptGroup" class="mt-2">
+						<label for="scriptPrompt" class="form-label">Topic or idea</label>
+						<textarea class="form-control" id="scriptPrompt" rows="5"
+							placeholder="Example: 5 easy gardening hacks for beginners."></textarea>
+						<div class="form-grid mt-2">
+							<div>
+								<label for="promptPresetSelect" class="form-label">Saved prompt presets</label>
+								<select id="promptPresetSelect" class="form-select">
+									<option value="">No preset selected</option>
+								</select>
+							</div>
+							<div>
+								<label for="promptPresetName" class="form-label">Preset name</label>
+								<input id="promptPresetName" type="text" class="form-control"
+									placeholder="Example: Gardening Hooks" />
+							</div>
+						</div>
+						<div class="quick-tools mt-2">
+							<button type="button" class="btn btn-outline-dark" id="loadPromptPresetBtn">
+								Load Preset
+							</button>
+							<button type="button" class="btn btn-outline-secondary" id="savePromptPresetBtn">
+								Save Preset
+							</button>
+							<button type="button" class="btn btn-outline-secondary" id="deletePromptPresetBtn">
+								Delete Preset
+							</button>
+						</div>
+						<div class="text-muted mt-1" style="font-size: 0.8rem">
+							Choose a preset and generate immediately, or load one into the
+							box to edit it first.
+						</div>
+					</div>
 
-  <!-- Cards Grid -->
-  <div id="card-grid"></div>
+					<div id="directScriptGroup" class="mt-2 d-none">
+						<label for="directScript" class="form-label">Your full script</label>
+						<textarea class="form-control" id="directScript" rows="7"
+							placeholder="Paste your final script here."></textarea>
+					</div>
 
-  <!-- Toast Container -->
-  <div class="toast-container" id="toast-container"></div>
+					<div id="trendsWorkflowGroup" class="mt-2 d-none">
+						<label class="form-label">Google Trends topics</label>
+						<div class="form-grid">
+							<div>
+								<label for="trendGeo" class="form-label">Country</label>
+								<select id="trendGeo" class="form-select">
+									<option value="" disabled selected>Select country</option>
+								</select>
+							</div>
+							<div>
+								<label for="trendHours" class="form-label">Time range</label>
+								<select id="trendHours" class="form-select">
+									<option value="4">Last 4 hours</option>
+									<option value="24" selected>Last 24 hours</option>
+									<option value="48">Last 48 hours</option>
+									<option value="168">Last 7 days</option>
+								</select>
+							</div>
+							<div>
+								<label for="trendCategory" class="form-label">Category</label>
+								<select id="trendCategory" class="form-select">
+									<option value="">All categories</option>
+								</select>
+							</div>
+							<div>
+								<label for="trendStatus" class="form-label">Trend status</label>
+								<select id="trendStatus" class="form-select">
+									<option value="">All trends</option>
+									<option value="active" selected>Only active trends</option>
+								</select>
+							</div>
+							<div>
+								<label for="trendSort" class="form-label">Sort by</label>
+								<select id="trendSort" class="form-select">
+									<option value="">Relevance</option>
+									<option value="title">Title</option>
+									<option value="search-volume" selected>Search volume</option>
+									<option value="recency">Recency</option>
+								</select>
+							</div>
+							<div>
+								<label for="trendMaxVideos" class="form-label">Max topics</label>
+								<input id="trendMaxVideos" type="number" min="1" max="20" class="form-control"
+									value="5" />
+							</div>
+						</div>
+						<div class="text-muted mt-1" style="font-size: 0.8rem">
+							The app fetches trending topics, creates one job per topic, and lets you review each script
+							before rendering.
+						</div>
+					</div>
+				</div>
 
-  <!-- Scripts -->
-  <script>
-    const cardGrid = document.getElementById("card-grid");
-    const toastContainer = document.getElementById("toast-container");
+				<div>
+					<details class="advanced-settings">
+						<summary>Video options (advanced)</summary>
+						<div class="orient-grid mt-2">
+							<div>
+								<label for="orientationSelect" class="form-label">Video shape</label>
+								<select id="orientationSelect" class="form-select">
+									<option value="portrait">Portrait (9:16)</option>
+									<option value="landscape">Landscape (16:9)</option>
+									<option value="square">Square (1:1)</option>
+									<option value="original">Original (source video)</option>
+									<option value="custom">Custom</option>
+								</select>
+							</div>
+							<div class="d-flex align-items-end">
+								<div class="form-check mb-2">
+									<input class="form-check-input" type="checkbox" id="includeSubtitles" checked />
+									<label class="form-check-label" for="includeSubtitles">
+										Add subtitles
+									</label>
+								</div>
+							</div>
+						</div>
 
-    let generateQueue = [], ttsQueue = [], alignQueue = [], burnQueue = [];
-    let generateLock = false, ttsLock = false, alignLock = false, burnLock = false;
+						<div class="custom-size-grid mt-1">
+							<div class="d-none" id="customWidthGroup">
+								<label for="customWidth" class="form-label">Custom width</label>
+								<input id="customWidth" type="number" min="1" class="form-control" placeholder="1080" />
+							</div>
+							<div class="d-none" id="customHeightGroup">
+								<label for="customHeight" class="form-label">Custom height</label>
+								<input id="customHeight" type="number" min="1" class="form-control"
+									placeholder="1920" />
+							</div>
+						</div>
+					</details>
 
-    function showToast(message) {
-      const toast = document.createElement("div");
-      toast.className = "toast align-items-center text-white bg-primary border-0 show";
-      toast.role = "alert";
-      toast.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body">${message}</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>`;
-      toastContainer.appendChild(toast);
-      setTimeout(() => toast.remove(), 4000);
-    }
+					<p class="helper-text">
+						Tip: leave advanced options closed for the easiest setup.
+					</p>
+				</div>
+			</div>
 
-    function updateCard(id, { title, description, progress, label, downloadUrl }) {
-      const card = document.getElementById(id);
-      if (!card) return;
+			<div class="d-grid mt-2">
+				<button class="btn btn-primary" id="generateScriptBtn">
+					Generate Script
+				</button>
+			</div>
+		</section>
 
-      if (title) {
-        const titleEl = card.querySelector("h6");
-        titleEl.textContent = title;
-        titleEl.onclick = () => copyToClipboard(title);
-      }
+		<section class="panel">
+			<span class="step-label">Step 3</span>
+			<h3>Current Jobs</h3>
+			<p class="helper-text mt-0">
+				New jobs appear here. Approve each script to continue.
+			</p>
+			<div id="card-grid"></div>
+		</section>
 
-      if (description !== undefined) {
-        const descEl = card.querySelector("p");
-        descEl.textContent = description;
-        descEl.onclick = () => copyToClipboard(description);
-      }
+		<section class="panel">
+			<span class="step-label">Step 4</span>
+			<h3>Video Library</h3>
+			<ul class="nav nav-tabs library-tabs" role="tablist">
+				<li class="nav-item" role="presentation">
+					<button class="nav-link active" id="generated-videos-tab" data-bs-toggle="tab"
+						data-bs-target="#generated-videos-pane" type="button" role="tab"
+						aria-controls="generated-videos-pane" aria-selected="true">
+						Generated
+					</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="uploaded-videos-tab" data-bs-toggle="tab"
+						data-bs-target="#uploaded-videos-pane" type="button" role="tab"
+						aria-controls="uploaded-videos-pane" aria-selected="false">
+						Uploaded
+					</button>
+				</li>
+			</ul>
+			<div class="tab-content pt-2">
+				<div class="tab-pane fade show active" id="generated-videos-pane" role="tabpanel"
+					aria-labelledby="generated-videos-tab" tabindex="0">
+					<div class="preview-grid" id="generatedVideosGrid">
+						<div style="
+									grid-column: 1/-1;
+									text-align: center;
+									padding: 2rem;
+									color: #5c6b70;
+								">
+							<p style="margin: 0; font-size: 0.92rem">
+								No generated videos yet. Render one from a job above.
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="uploaded-videos-pane" role="tabpanel"
+					aria-labelledby="uploaded-videos-tab" tabindex="0">
+					<div class="preview-grid" id="uploadedVideosGrid">
+						<div style="
+									grid-column: 1/-1;
+									text-align: center;
+									padding: 2rem;
+									color: #5c6b70;
+								">
+							<p style="margin: 0; font-size: 0.92rem">
+								No uploaded videos yet. Upload videos in Settings.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
 
-      if (progress !== undefined) {
-        card.querySelector(".progress-bar").style.width = progress + "%";
-      }
+		<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="settingsModalLabel">App Settings</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="row g-3">
+							<div class="col-md-6">
+								<label for="settingsInputVideosDir" class="form-label">Input Videos Folder</label>
+								<input id="settingsInputVideosDir" type="text" class="form-control"
+									placeholder="/mnt/videos" />
+							</div>
+							<div class="col-md-6">
+								<label for="settingsOutputVideosDir" class="form-label">Rendered Videos Folder</label>
+								<input id="settingsOutputVideosDir" type="text" class="form-control"
+									placeholder="/mnt/videos/generated" />
+							</div>
+							<div class="col-md-4">
+								<label for="settingsDefaultOrientation" class="form-label">Default Orientation</label>
+								<select id="settingsDefaultOrientation" class="form-select">
+									<option value="portrait">portrait</option>
+									<option value="landscape">landscape</option>
+									<option value="square">square</option>
+									<option value="original">original</option>
+									<option value="custom">custom</option>
+								</select>
+							</div>
+							<div class="col-md-4">
+								<label for="settingsDefaultWidth" class="form-label">Default Width</label>
+								<input id="settingsDefaultWidth" type="number" min="1" class="form-control"
+									placeholder="1080" />
+							</div>
+							<div class="col-md-4">
+								<label for="settingsDefaultHeight" class="form-label">Default Height</label>
+								<input id="settingsDefaultHeight" type="number" min="1" class="form-control"
+									placeholder="1920" />
+							</div>
+							<div class="col-md-6">
+								<label for="settingsSpeakerId" class="form-label">Default Speaker ID</label>
+								<select id="settingsSpeakerId" class="form-select">
+									<option value="">Select a voice</option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<label for="settingsLanguageId" class="form-label">Default Language ID</label>
+								<select id="settingsLanguageId" class="form-select">
+									<option value="">Select language</option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<label for="settingsQualityId" class="form-label">Default Quality</label>
+								<select id="settingsQualityId" class="form-select">
+									<option value="">Select quality</option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<label for="settingsLocale" class="form-label">Locale</label>
+								<select id="settingsLocale" class="form-select">
+									<option value="english">english</option>
+									<option value="espanol">espanol</option>
+									<option value="french">french</option>
+									<option value="german">german</option>
+									<option value="italian">italian</option>
+									<option value="portuguese">portuguese</option>
+									<option value="polish">polish</option>
+									<option value="turkish">turkish</option>
+									<option value="russian">russian</option>
+									<option value="dutch">dutch</option>
+									<option value="czech">czech</option>
+									<option value="arabic">arabic</option>
+									<option value="chinese">chinese</option>
+									<option value="japanese">japanese</option>
+									<option value="hungarian">hungarian</option>
+									<option value="korean">korean</option>
+									<option value="hindi">hindi</option>
+								</select>
+							</div>
+							<div class="col-12 d-flex justify-content-end">
+								<button type="button" class="btn btn-outline-secondary btn-sm"
+									id="settingsUseCurrentVoiceBtn">
+									Use Current Voice Selection
+								</button>
+							</div>
+							<div class="col-12">
+								<label for="settingsDefaultPromptIdea" class="form-label">Default Prompt or Idea</label>
+								<textarea id="settingsDefaultPromptIdea" class="form-control" rows="6"
+									placeholder="Example: 5 easy gardening hacks for beginners."></textarea>
+								<div class="text-muted mt-1" style="font-size: 0.8rem">
+									Used as the default placeholder for the Topic or idea box.
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="settingsSubtitlesDefault" />
+									<label class="form-check-label" for="settingsSubtitlesDefault">
+										Enable subtitles by default
+									</label>
+								</div>
+							</div>
+							<div class="col-12">
+								<hr class="my-1" />
+								<label for="uploadVideosInput" class="form-label mb-1">Upload Background Videos To
+									Current Input Folder</label>
+								<input id="uploadVideosInput" type="file" accept="video/*,.mp4,.mov,.mkv,.webm" multiple
+									hidden />
 
-      if (label) {
-        card.querySelector(".status-label").textContent = label;
-      }
+								<div class="upload-picker">
+									<button type="button" class="btn btn-outline-dark" id="chooseUploadVideosBtn">
+										Choose videos
+									</button>
 
-      if (downloadUrl) {
-        const btn = document.createElement("a");
-        btn.href = downloadUrl;
-        btn.download = `${title || 'video'}.mp4`;
-        btn.className = "btn btn-sm btn-outline-primary mt-2 w-100";
-        btn.textContent = "Download Video";
-        card.appendChild(btn);
-      }
-    }
+									<div class="upload-picker-meta">
+										<span id="uploadVideosFileLabel">No files selected</span>
+									</div>
+								</div>
 
-    function createCard(id, trendTitle) {
-      const card = document.createElement("div");
-      card.id = id;
-      card.className = "card-tile";
-      card.innerHTML = `
-        <h6>${trendTitle}</h6>
-        <p></p>
-        <div class="progress">
-          <div class="progress-bar" style="width: 5%"></div>
-        </div>
-        <div class="status-label mt-1 text-muted" style="font-size: 0.8rem;">Queued...</div>
-      `;
-      cardGrid.appendChild(card);
-    }
+								<div class="d-flex gap-2 mt-2">
+									<button class="btn btn-outline-primary btn-sm" id="uploadVideosBtn" disabled>
+										Upload Videos
+									</button>
+								</div>
+								<div class="text-muted mt-1" style="font-size: 0.8rem" id="uploadVideosStatus">
+									Uploaded files are added to your selected input source
+									folder.
+								</div>
+								<hr class="my-3" />
+								<label for="youtubeImportUrl" class="form-label mb-1">Import From YouTube</label>
+								<input id="youtubeImportUrl" type="url" class="form-control"
+									placeholder="https://www.youtube.com/watch?v=..." />
+								<div class="d-flex gap-2 mt-2">
+									<button class="btn btn-outline-primary btn-sm" id="youtubeImportBtn">
+										Download + Split Into 56s Clips
+									</button>
+								</div>
+								<div class="text-muted mt-1" style="font-size: 0.8rem" id="youtubeImportStatus">
+									The backend downloads the video, keeps only full 56 second
+									clips, saves them to the input folder, and deletes the
+									original plus any leftover tail clip.
+								</div>
+								<div class="text-muted mt-2" style="font-size: 0.8rem" id="youtubeImportJobs"></div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" data-bs-dismiss="modal">
+							Close
+						</button>
+						<button class="btn btn-primary" id="saveSettingsBtn">
+							Save Settings
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    async function withRetry(taskFn, onRetry) {
-      while (true) {
-        try {
-          return await taskFn();
-        } catch (err) {
-          if (onRetry) onRetry(err);
-          showToast("Retrying after error...");
-          await new Promise(res => setTimeout(res, 5000));
-        }
-      }
-    }
+		<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="confirmModalLabel">Confirm action</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<p id="confirmModalMessage" class="mb-0">Are you sure?</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-secondary" id="confirmModalCancelBtn">
+							Cancel
+						</button>
+						<button type="button" class="btn btn-danger" id="confirmModalOkBtn">
+							Confirm
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    function generateId() {
-      const array = new Uint8Array(10);
-      window.crypto.getRandomValues(array);
-      return Array.from(array, byte => ('0' + byte.toString(16)).slice(-2)).join('');
-    }
+		<div class="modal fade" id="inputModal" tabindex="-1" aria-labelledby="inputModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="inputModalLabel">Enter value</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
 
-    async function executeWorkflow() {
-      const geo = document.getElementById("geo").value;
-      const hours = document.getElementById("hours").value;
-      const status = document.getElementById("status").value;
-      const sort = document.getElementById("sort").value;
-      const category = document.getElementById("category").value;
-      const maxVideos = parseInt(document.getElementById("maxVideos").value) || Infinity;
+					<div class="modal-body">
+						<label for="inputModalField" class="form-label" id="inputModalMessage">
+							Value
+						</label>
+						<input type="text" class="form-control" id="inputModalField" />
+						<div class="text-muted mt-2" id="inputModalHelp" style="font-size: 0.85rem"></div>
+					</div>
 
-      let trends = await withRetry(() =>
-        fetch("/api/scrape", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ geo, hours, status, sort, category })
-        }).then(res => res.json())
-      );
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-secondary" id="inputModalCancelBtn">
+							Cancel
+						</button>
+						<button type="button" class="btn btn-primary" id="inputModalOkBtn">
+							Save
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-      if (!Array.isArray(trends)) {
-        showToast("Error fetching trends");
-        return;
-      }
-      trends = trends.slice(0, maxVideos);
+		<div class="toast-container" id="toast-container"></div>
 
-      trends.forEach(trend => {
-        const id = generateId();
-        createCard(id, trend.trend);
-        generateQueue.push({ id, trend });
-      });
+		<footer class="border-top text-center py-3 mt-2">
+			Made with <span style="color: #d02f2f">&hearts;</span> by
+			<a href="https://cirociampaglia.it" class="text-dark" target="_blank" rel="noopener noreferrer">Ciro
+				Ciampaglia</a>
+		</footer>
+	</div>
 
-      processGenerate(); processTTS(); processAlign(); processBurn();
-    }
-
-    async function generateVideo() {
-      const topic = document.getElementById("customTopic").value;
-      const description = document.getElementById("customDescription").value;
-
-      if (!topic || !description) {
-        showToast("Please enter both topic and description");
-        return;
-      }
-
-      const id = await generateId();
-      createCard(id, topic);
-      updateCard(id, { description, progress: 5, label: "Generating content..." });
-
-      generateQueue.push({ id, trend: { trend: topic, body: description } });
-      processGenerate(); processTTS(); processAlign(); processBurn();
-    }
-
-    async function processGenerate() {
-      if (generateLock || generateQueue.length === 0) return;
-      generateLock = true;
-
-      const { id, trend } = generateQueue.shift();
-      updateCard(id, { progress: 10, label: "Generating content..." });
-
-      const generated = await withRetry(() => generateContent(trend), () => updateCard(id, { label: "Retrying generation..." }));
-      updateCard(id, {
-        title: generated.title,
-        description: generated.description,
-        progress: 30,
-        label: "Content generated"
-      });
-
-      ttsQueue.push({ id, trend, generated });
-      generateLock = false;
-      processGenerate();
-      processTTS();
-    }
-
-    async function processTTS() {
-      if (ttsLock || ttsQueue.length === 0) return;
-      ttsLock = true;
-
-      const { id, generated } = ttsQueue.shift();
-      updateCard(id, { progress: 50, label: "Generating TTS..." });
-
-      const ttsAudio = await withRetry(() => generateTTS(generated.body), () => updateCard(id, { label: "Retrying TTS..." }));
-      alignQueue.push({ id, generated, ttsAudio });
-      updateCard(id, { progress: 60, label: "TTS generated" });
-
-      ttsLock = false;
-      processTTS();
-      processAlign();
-    }
-
-    async function processAlign() {
-      if (alignLock || alignQueue.length === 0) return;
-      alignLock = true;
-
-      const { id, generated, ttsAudio } = alignQueue.shift();
-      updateCard(id, { progress: 70, label: "Aligning subtitles..." });
-
-      const srt = await withRetry(() => alignSubtitles(generated.body, ttsAudio.base64), () => updateCard(id, { label: "Retrying alignment..." }));
-      burnQueue.push({ id, srt, ttsAudio, title: generated.title });
-      updateCard(id, { progress: 80, label: "Subtitles aligned" });
-
-      alignLock = false;
-      processAlign();
-      processBurn();
-    }
-
-    async function processBurn() {
-      if (burnLock || burnQueue.length === 0) return;
-      burnLock = true;
-
-      const { id, srt, ttsAudio, title } = burnQueue.shift();
-      updateCard(id, { progress: 90, label: "Rendering video..." });
-
-      const video = await withRetry(() => burnVideo(ttsAudio.base64, srt), () => updateCard(id, { label: "Retrying rendering..." }));
-      updateCard(id, { progress: 100, label: "Video ready", downloadUrl: video.url, title });
-
-      burnLock = false;
-      processBurn();
-    }
-
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => showToast("Copied to clipboard"));
-    }
-
-    // -------------------
-    // API Helpers
-    // -------------------
-
-    async function generateContent(trend) {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(trend)
-      });
-      return await res.json();
-    }
-
-    let speaker_id = undefined;
-
-    async function generateTTS(text) {
-      if (!speaker_id) {
-        const res = await fetch("/api/coquiSpeakerId");
-        const data = await res.json();
-        speaker_id = data.speakerId;
-      }
-      const res = await fetch(`/api/tts?text=${encodeURIComponent(text)}&speaker_id=${speaker_id}`);
-      const blob = await res.blob();
-      const base64 = await blobToBase64(blob);
-      return { base64 };
-    }
-
-    async function alignSubtitles(text, audioBase64) {
-      const res = await fetch("/api/align", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, audio: audioBase64 })
-      });
-      const result = await res.json();
-      return result.srt;
-    }
-
-    async function burnVideo(audioBase64, srt) {
-      const res = await fetch("/api/burn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audio: audioBase64, subtitles: srt })
-      });
-      const blob = await res.blob();
-      return { url: URL.createObjectURL(blob) };
-    }
-
-    function blobToBase64(blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    }
-
-    window.addEventListener("DOMContentLoaded", async () => {
-      const populateOptions = async (file, select) => {
-        const data = await fetch(file).then(res => res.json());
-        Object.entries(data).forEach(([value, text]) => {
-          const option = document.createElement("option");
-          option.value = value;
-          option.textContent = text;
-          select.appendChild(option);
-        });
-      };
-
-      populateOptions("/assets/countries.json", document.getElementById("geo"));
-      populateOptions("/assets/categories.json", document.getElementById("category"));
-
-
-      const geo = localStorage.getItem("geo");
-      const hours = localStorage.getItem("hours");
-      const status = localStorage.getItem("status");
-      const sort = localStorage.getItem("sort");
-      const category = localStorage.getItem("category");
-
-      if (geo) document.getElementById("geo").value = geo;
-      if (hours) document.getElementById("hours").value = hours;
-      if (status) document.getElementById("status").value = status;
-      if (sort) document.getElementById("sort").value = sort;
-      if (category) document.getElementById("category").value = category;
-
-      // Save on change
-      document.getElementById("geo").addEventListener("input", e => localStorage.setItem("geo", e.target.value));
-      document.getElementById("hours").addEventListener("change", e => localStorage.setItem("hours", e.target.value));
-      document.getElementById("status").addEventListener("input", e => localStorage.setItem("status", e.target.value));
-      document.getElementById("sort").addEventListener("input", e => localStorage.setItem("sort", e.target.value));
-      document.getElementById("category").addEventListener("change", e => localStorage.setItem("category", e.target.value));
-    });
-  </script>
-
-  <footer class="border-top text-center py-3">
-    Made with <span style="color: red;">&hearts;</span> by <a href="https://cirociampaglia.it" class="text-black"
-      target="_blank" rel="noopener noreferrer">Ciro Ciampaglia</a>
-  </footer>
+	<script type="module" src="assets/js/app.js"></script>
 </body>
 
 </html>
