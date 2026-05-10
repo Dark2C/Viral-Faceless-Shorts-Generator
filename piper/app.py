@@ -104,7 +104,7 @@ def _load_catalog(force_refresh: bool = False) -> list[dict]:
 
 
 def _resolve_voice(
-    voice_key: str, speaker_id: str, language_id: str, quality_id: str
+    voice_key: str, speaker_id: str, speaker_language: str, quality_id: str
 ) -> dict:
     voices = _load_catalog()
     if not voices:
@@ -112,7 +112,7 @@ def _resolve_voice(
 
     requested_voice_key = str(voice_key or "").strip()
     requested_speaker = str(speaker_id or "").strip()
-    requested_language = str(language_id or "").strip()
+    requested_language = str(speaker_language or "").strip()
     requested_quality = str(quality_id or "").strip()
 
     if requested_voice_key:
@@ -174,7 +174,6 @@ def _ensure_voice_model(voice: dict) -> tuple[Path, Path]:
 
 @app.get("/")
 def index() -> str:
-    # Keep Coqui-compatible select IDs so existing parser logic still works.
     voices = _load_catalog()
     language_codes = sorted({v["languageCode"] for v in voices})
     quality_codes = sorted({v["quality"] for v in voices})
@@ -195,7 +194,7 @@ def index() -> str:
     return (
         "<html><body>"
         f"<select id='speaker_id'>{speaker_options}</select>"
-        f"<select id='language_id'>{language_options}</select>"
+        f"<select id='speaker_language'>{language_options}</select>"
         f"<select id='quality_id'>{quality_options}</select>"
         "</body></html>"
     )
@@ -207,18 +206,22 @@ def voices() -> Response:
     return jsonify({"voices": voices_catalog, "total": len(voices_catalog)})
 
 
-@app.get("/api/tts")
 @app.post("/api/tts")
 def tts() -> Response:
-    payload = request.get_json(silent=True) or {}
-    text = request.values.get("text") or payload.get("text")
+    payload = request.get_json(silent=True)
+
+    if payload is None:
+        payload = request.form.to_dict()
+
+    text = payload.get("text")
+
     if not isinstance(text, str) or not text.strip():
         return jsonify({"error": "Missing required string field: text"}), 400
 
-    voice_key = request.values.get("voice_key") or payload.get("voice_key")
-    speaker_id = request.values.get("speaker_id") or payload.get("speaker_id")
-    language_id = request.values.get("language_id") or payload.get("language_id")
-    quality_id = request.values.get("quality_id") or payload.get("quality_id")
+    voice_key = payload.get("voice_key")
+    speaker_id = payload.get("speaker_id")
+    speaker_language = payload.get("speaker_language")
+    quality_id = payload.get("quality_id")
 
     safe_text = re.sub(r"\s+", " ", text).strip()
 
@@ -229,7 +232,7 @@ def tts() -> Response:
         selected_voice = _resolve_voice(
             str(voice_key or ""),
             str(speaker_id or ""),
-            str(language_id or ""),
+            str(speaker_language or ""),
             str(quality_id or ""),
         )
         model_path, _config_path = _ensure_voice_model(selected_voice)
@@ -249,12 +252,27 @@ def tts() -> Response:
         )
 
         if proc.returncode != 0:
+            stderr_text = proc.stderr.decode("utf-8", errors="replace")
+            stdout_text = proc.stdout.decode("utf-8", errors="replace")
+
+            app.logger.error(
+                "Piper synthesis failed. voice=%s language=%s quality=%s stderr=%s stdout=%s",
+                selected_voice.get("key"),
+                selected_voice.get("languageCode"),
+                selected_voice.get("quality"),
+                stderr_text,
+                stdout_text,
+            )
+
             return (
                 jsonify(
                     {
                         "error": "Piper synthesis failed",
                         "voice": selected_voice["key"],
-                        "details": proc.stderr.decode("utf-8", errors="replace"),
+                        "languageCode": selected_voice.get("languageCode"),
+                        "quality": selected_voice.get("quality"),
+                        "details": stderr_text,
+                        "stdout": stdout_text,
                     }
                 ),
                 500,

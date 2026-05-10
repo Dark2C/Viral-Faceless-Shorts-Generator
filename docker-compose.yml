@@ -8,8 +8,6 @@ services:
       - OPENROUTER_API_KEY
       - OPENROUTER_MODEL
       - LOCALE
-      - COQUI_SPEAKER_ID
-      - COQUI_LANGUAGE_ID
       - TTS_UPSTREAM_TIMEOUT_MS
       - PIPER_BASE_URL
       - PIPER_SERVER_URL
@@ -43,7 +41,7 @@ services:
     restart: unless-stopped
     image: nginx:latest
     ports:
-      - "${WEB_PORT:-9988}:80"
+      - "${WEB_PORT:-80}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/html:/usr/share/nginx/html:ro

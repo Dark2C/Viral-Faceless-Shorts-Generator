@@ -10,10 +10,12 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"express": "^5.1.0",
-		"multer": "^2.0.2",
-		"undici": "^7.16.0",
-		"uuid": "^11.1.0"
+		"csvtojson": "^2.0.14",
+		"express": "^5.2.1",
+		"puppeteer": "^24.43.0",
+		"uuid": "^14.0.0",
+		"multer": "^2.1.1",
+		"undici": "^8.2.0"
 	},
 	"type": "module"
 }
